@@ -56,4 +56,3 @@ class SendAttempt(models.Model):
 
     def __str__(self):
         return f"Попытка рассылки: {self.attempt_time} - {self.status}"
-
