@@ -132,13 +132,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR / 'media/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# URL для перенаправления после успешного входа
-LOGIN_REDIRECT_URL = 'catalog:product_list'
-
-# URL для перенаправления после выхода из системы
-LOGOUT_REDIRECT_URL = '/'
-
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
