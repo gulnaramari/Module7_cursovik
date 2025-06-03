@@ -96,3 +96,43 @@ class HomeView(generic.TemplateView):
         context['active_mailings'] = Mailing.objects.filter(status='Запущена').count()
         context['unique_recipients'] = Recipient.objects.count()
         return context
+
+
+class SendMailingView(generic.View):
+    def post(self, request, mailing_id):
+        mailing = self.get_object(mailing_id)
+        recipients = mailing.recipients.all()
+
+        # Инициация отправки
+        for recipient in recipients:
+            try:
+                send_mail(
+                    mailing.message.subject,
+                    mailing.message.body,
+                    'from@example.com',  # email from
+                    [recipient.email],
+                    fail_silently=False,
+                )
+                status = 'Done'
+                server_response = 'Письмо отправлено успешно.'
+            except Exception as e:
+                status = 'Failed'
+                server_response = str(e)
+
+            # Сохранение попытки рассылки
+            SendAttempt.objects.create(
+                mailing=mailing,
+                status=status,
+                server_response=server_response
+            )
+
+        # Обновление статуса рассылки
+        if mailing.status == 'Создана':
+            mailing.status = 'Запущена'
+            mailing.first_sent_at = timezone.now()
+            mailing.save()
+
+        return render(request, 'status_mailing.html', {'mailing': mailing})
+
+    def get_object(self, mailing_id):
+        return Mailing.objects.get(id=mailing_id)

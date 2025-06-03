@@ -5,35 +5,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="apple-touch-icon" href="/docs/5.3/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="/docs/5.3/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="mask-icon" href="/docs/5.3/assets/img/favicons/safari-pinned-tab.svg" color="#712cf9">
+    <link rel="icon" href="/docs/5.3/assets/img/favicons/favicon.ico">
+    <meta name="theme-color" content="#712cf9">
+
     <title>{% block title %} Сервис рассылок {% endblock %}</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'messenger:home' %}">Сервис рассылок</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'messenger:list_recipient' %}">Получатели</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'messenger:message_list' %}">Сообщения</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'messenger:list_mailing' %}">Рассылки</a>
-                    </li>
-                </ul>
-            </div>
+    <header data-bs-theme="dark">
+  <div class="collapse text-bg-dark" id="navbarHeader">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-8 col-md-7 py-4">
+          <h4>О нас</h4>
+          <span style="font-color:#57fd8c;">Добро пожаловать в наш сервис!</span>
+          <p class="text-body-secondary">
+            Сервис рассылок. Здесь вы можете управлять рассылками сообщений для ваших клиентов!</p>
         </div>
-    </nav>
+        <div class="col-sm-4 offset-md-1 py-4">
+          <ul class="list-unstyled">
 
-    <div class="container mt-4">
-        {% block content %}{% endblock %}
+
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'messenger:home' %}" class="text-white">Вход</a></li>
+
+            <form method="post" action="{% url 'users:logout' %}" style="display: inline">
+                {% csrf_token %}
+                <button class="p-2 btn btn-outline-primary">Выйти</button>
+            </form>
+
+            {% else %}
+            <li><a href="{% url 'users:login' %}" class="text-white">Вход</a></li>
+            <li><a href="{% url 'users:register' %}" class="text-white">Регистрация</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
     </div>
+  </div>
+  <div class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </div>
+</header>
 
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<main>
+{% block content %}
+
+
+{% endblock %}
+</main>
+
+<footer class="text-body-secondary py-5">
+  <div class="container">
+    <p class="float-end mb-1">
+      <a href="#">Back to top</a>
+    </p>
+  </div>
+</footer>
+<script defer src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
 </body>
 </html>
+
