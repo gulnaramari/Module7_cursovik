@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Список рассылок{% endblock %}
+
+{% block content %}
+<h2>Список рассылок</h2>
+<a href="{% url 'mailing_create' %}" class="btn btn-success">Добавить рассылку</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Сообщение</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mailing in mailings %}
+        <tr>
+            <td>{{ mailing.message.subject }}</td>
+            <td>{{ mailing.status }}</td>
+            <td>
+                <a href="{% url 'mailing_update' mailing.pk %}" class="btn btn-warning">Редактировать</a>
+                <a href="{% url 'send_mailing' mailing.pk %}" class="btn btn-info">Отправить</a>
+                <a href="{% url 'mailing_delete' mailing.pk %}" class="btn btn-danger">Удалить</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

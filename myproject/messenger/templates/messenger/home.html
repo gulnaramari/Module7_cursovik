@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<h1>Добро пожаловать в наш сервис рассылок!</h1>
+<p>
+    <a href="{% url 'list_recipient' %}" class="btn btn-primary">Перейти к получателям</a>
+    <a href="{% url 'message_list' %}" class="btn btn-primary">Перейти к сообщениям</a>
+    <a href="{% url 'list_mailing' %}" class="btn btn-primary">Перейти к рассылкам</a>
+</p>
+{% endblock %}

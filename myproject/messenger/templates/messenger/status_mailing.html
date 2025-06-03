@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Статус рассылки{% endblock %}
+
+{% block content %}
+<h2>Статус рассылки</h2>
+<p>Рассылка: {{ mailing.message.subject }}</p>
+<p>Статус: {{ mailing.status }}</p>
+<p>Первое отправление: {{ mailing.first_sent_at|date:"D d M Y H:i:s" }}</p>
+<h3>Попытки отправки:</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Время</th>
+            <th>Статус</th>
+            <th>Ответ сервера</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attempt in mailing.send_attempts.all %}
+        <tr>
+            <td>{{ attempt.attempt_time|date:"D d M Y H:i:s" }}</td>
+            <td>{{ attempt.status }}</td>
+            <td>{{ attempt.server_response }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'mailing_list' %}" class="btn btn-secondary">Назад</a>
+{% endblock %}
