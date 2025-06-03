@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'messenger/base.html' %}
 
 {% block title %}Список получателей{% endblock %}
 
 {% block content %}
 <h2>Список получателей</h2>
-<a href="{% url 'recipient_create' %}" class="btn btn-success">Добавить получателя</a>
+<a href="{% url 'messenger:list_recipient' %}" class="btn btn-success">Добавить получателя</a>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -19,8 +19,8 @@
             <td>{{ recipient.name }}</td>
             <td>{{ recipient.email }}</td>
             <td>
-                <a href="{% url 'recipient_update' recipient.pk %}" class="btn btn-warning">Редактировать</a>
-                <a href="{% url 'recipient_delete' recipient.pk %}" class="btn btn-danger">Удалить</a>
+                <a href="{% url 'messenger:recipient_form' recipient.pk %}" class="btn btn-warning">Редактировать</a>
+                <a href="{% url 'messenger:mailing_confirm_delete' recipient.pk %}" class="btn btn-danger">Удалить</a>
             </td>
         </tr>
         {% endfor %}

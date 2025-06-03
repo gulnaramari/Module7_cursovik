@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+{% extends 'messenger/base.html' %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+    <div class="row text-center">
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Войти</button>
+            </form>
+
+    </div>
+{% endblock %}
+
+
