@@ -1,5 +1,8 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
+
+
 # Create your models here.
 
 
@@ -23,16 +26,23 @@ class Recipient(models.Model):
         return self.email
 
 
-
-
 class Message(models.Model):
     subject = models.CharField(max_length=255)
     body = models.TextField()
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name='Владелец',
+        null=True
+    )
 
     class Meta:
         verbose_name = "сообщение"
         verbose_name_plural = "сообщения"
         ordering = ["subject"]
+        permissions = [
+            ('can_view_message', 'Can view message'),
+        ]
 
 
 class Mailing(models.Model):
@@ -44,11 +54,40 @@ class Mailing(models.Model):
     first_at = models.DateTimeField(null=True, blank=True)
     end_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Создана')
-    message = models.ForeignKey(Message, on_delete=models.CASCADE)
-    recipients = models.ManyToManyField(Recipient)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name='Сообщение', related_name='mailings')
+    recipients = models.ManyToManyField(Recipient, verbose_name='Получатели', related_name='mailings')
+    start_date_time = models.DateTimeField(verbose_name='Дата и время первой отправки', blank=True, null=True,
+                                           editable=False)
+    end_date_time = models.DateTimeField(verbose_name='Дата и время окончания отправки', blank=True, null=True,
+                                         editable=False)
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                              verbose_name='Владелец', null=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания', null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата изменения', null=True, blank=True)
+    is_active = models.BooleanField(default=True, verbose_name='Активна')
+
+    class Meta:
+        verbose_name = 'Рассылка'
+        verbose_name_plural = 'Рассылки'
+        permissions = [
+            ("can_view_mailing", "Can view mailing")
+        ]
 
     def __str__(self):
         return f"{self.status}"
+
+    # def get_successful_attempts_count(self):
+    #     return self.attempt.filter(status='successfully').count()
+    #
+    # def get_unsuccessful_attempts_count(self):
+    #     return self.attempts.filter(status='not_unsuccessful').count()
+    #
+    # def total_attempts_count(self):
+    #     return self.attempts.count()
+
+    def __str__(self):
+        return f'Рассылка: {self.message} | Статус: {self.get_status_display()}'
 
 
 class SendAttempt(models.Model):
@@ -58,9 +97,26 @@ class SendAttempt(models.Model):
         ]
 
     attempt_time = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
-    server_response = models.TextField(blank=True)
-    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, related_name='send_attempts')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES,
+                              default='Failed', verbose_name='Статус',
+                              db_index=True
+                              )
+    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE,
+                                verbose_name='Рассылка', null=True, related_name='sendattempt')
+    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE,
+                                  verbose_name='Получатель', null=True, related_name='sendattempt')
+    date_time = models.DateTimeField(default=timezone.now,
+                                     verbose_name='Дата и время попытки', db_index=True,
+                                     editable=False)
+    server_response = models.TextField(verbose_name='Ответ почтового сервера', blank=True, null=True)
+
+    class Meta:
+        verbose_name = ('Попытка рассылки')
+        verbose_name_plural = ('Попытки рассылки')
+        ordering = ['-date_time']
+
+    # def __str__(self):
+    #     return f"Попытка рассылки: {self.attempt_time} - {self.status}"
 
     def __str__(self):
-        return f"Попытка рассылки: {self.attempt_time} - {self.status}"
+        return f"{self.mailing} - {self.recipient.email} - {self.date_time} - {self.status}"
