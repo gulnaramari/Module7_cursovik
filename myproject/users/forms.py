@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
 from .models import User
 
 
@@ -16,3 +16,21 @@ class UserRegisterForm(UserCreationForm):
         if phone_number and not phone_number.isdigit():
             raise forms.ValidationError('Номер телефона должен содержать только цифры.')
         return phone_number
+
+
+class LoginForm(AuthenticationForm):
+    "Форма входа с email"
+    username = forms.EmailField(label='email')
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    "Форма сброса пароля"
+    class Meta:
+        model = User
+        fields = ('email',)
+
+
+class ChangePasswordForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ["password1", "password2"]
