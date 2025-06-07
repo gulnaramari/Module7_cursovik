@@ -1,0 +1,13 @@
+{% extends 'messenger/base.html' %}
+
+{% block title %}Редактировать получателя{% endblock %}
+
+{% block content %}
+<h1>Редактировать получателя</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Сохранить изменения</button>
+</form>
+<a href="{% url 'messenger:list_recipient' %}" class="btn btn-secondary">Назад</a>
+{% endblock %}

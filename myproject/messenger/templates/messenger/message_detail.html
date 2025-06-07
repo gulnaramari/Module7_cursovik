@@ -1,0 +1,22 @@
+{% extends "messenger/base.html" %}
+
+{% block content %}
+  <div class="container">
+    <h1>{{ message.message_subject }}</h1>
+    <p><strong>Автор:</strong> {{ message.owner.username }}</p>
+    <div class="message-body">
+      <p>{{ message.message_body }}</p>
+    </div>
+
+    <div class="actions">
+      {% if message.owner == request.user %}
+        <a href="{% url 'messenger:message_update' message.pk %}" class="btn btn-primary">Редактировать</a>
+        <form action="{% url 'messenger:message_confirm_delete' message.pk %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      {% endif %}
+      <a href="{% url 'messenger:message_list' %}" class="btn btn-secondary">Назад к списку сообщений</a>
+    </div>
+  </div>
+{% endblock %}

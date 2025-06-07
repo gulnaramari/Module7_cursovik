@@ -1,0 +1,11 @@
+{% extends 'messenger/base.html' %}
+
+{% block content %}
+<h2>Редактирование рассылки: "{{ form.instance.name }}"</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить изменения</button>
+</form>
+<a href="{% url 'messenger:list_mailing' %}">Назад к списку рассылок</a>
+{% endblock %}

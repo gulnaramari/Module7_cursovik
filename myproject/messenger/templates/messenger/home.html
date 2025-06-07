@@ -3,8 +3,43 @@
 {% block title %}Главная{% endblock %}
 
 {% block content %}
-<h4>Добро пожаловать!</h4>
-<p>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Статистика рассылок</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Количество всех рассылок:</strong> {{ mailings|length }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Количество активных рассылок:</strong> {{ active_mailings }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Количество уникальных клиентов:</strong> {{ recipients }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-</p>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Список рассылок</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for mailing in mailings %}
+                            <li class="list-group-item">
+                                <a href="{% url 'messenger:mailing_detail' mailing.pk %}">{{ mailing.name }}</a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">Нет рассылок.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
