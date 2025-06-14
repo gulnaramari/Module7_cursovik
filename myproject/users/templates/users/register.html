@@ -7,7 +7,12 @@
 
 {% block content %}
     <div class="row text-left">
-
+        <h2>Регистрация</h2>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.as_p }}
@@ -16,3 +21,5 @@
             <p>Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a></p>
     </div>
 {% endblock %}
+
+

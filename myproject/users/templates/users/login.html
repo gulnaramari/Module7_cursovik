@@ -5,13 +5,17 @@
 
 {% block content %}
     <div class="row text-center">
-
+            <h2>Вход</h2>
             <form method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit">Войти</button>
             </form>
-
+    <p>
+    {% if form.non_field_errors %}
+      <a href="{% url 'users:password_reset' %}" class="btn btn-primary mt-2" >Забыли пароль?</a>
+    {% endif %}
+    </p>
     </div>
 {% endblock %}
 
