@@ -1,0 +1,40 @@
+<header>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Рассылка</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'messenger:home' %}">Главная</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Рассылка
+            </a>
+            <ul class="dropdown-menu">
+               <li><a class="dropdown-item" href="/mailings/mailings/">Список рассылки</a></li>
+              <li><a class="dropdown-item" href="/mail_messages/">Список писем</a></li>
+              <li><a class="dropdown-item" href="/clients/">Список пользователей</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="">Статистика</a></li>
+            </ul>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center">
+          {% if user.is_active %}
+            <form method="post" action="{% url 'users:logout' %}" style="display: inline;">
+          {% csrf_token %}
+            <a href="{% url 'users:login' %}"><button class="p-2 btn btn-outline-primary" type="submit">Выйти</button></a>
+            </form>
+          {% else %}
+            <a href="{% url 'users:login' %}"><button class="p-2 btn btn-outline-primary" type="submit">Войти</button></a>
+            <a href="{% url 'users:register' %}"><button class="p-2 btn btn-outline-primary" type="submit">Регистрация</button></a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

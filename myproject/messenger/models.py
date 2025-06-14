@@ -1,18 +1,19 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-
-
-# Create your models here.
+from users.models import User
 
 
 class Recipient(models.Model):
     email = models.EmailField(max_length=50, unique=True, help_text="Введите ваш е-майл")
     full_name = models.CharField(max_length=255, help_text="Введите ФИО")
     comment = models.TextField(verbose_name='Комментарии', blank=True, null=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL,
-                              on_delete=models.CASCADE, related_name='recipients',
-                              verbose_name='Владелец', null=True)
+    owner = models.ForeignKey(User,
+                              on_delete=models.CASCADE,
+                              verbose_name='Владелец',
+                              help_text="Укажите владельца",
+                              null=True,
+                              blank=True,)
 
     class Meta:
         verbose_name = "получатель"
@@ -30,7 +31,7 @@ class Message(models.Model):
     subject = models.CharField(max_length=255)
     body = models.TextField()
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         verbose_name='Владелец',
         null=True
@@ -61,7 +62,7 @@ class Mailing(models.Model):
     end_date_time = models.DateTimeField(verbose_name='Дата и время окончания отправки', blank=True, null=True,
                                          editable=False)
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               verbose_name='Владелец', null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания', null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата изменения', null=True, blank=True)
@@ -71,20 +72,9 @@ class Mailing(models.Model):
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
         permissions = [
-            ("can_view_mailing", "Can view mailing")
+            ("can_view_all_mailings", "Может просматривать все рассылки"),
+            ("can_disable_mailings", "Может отключать рассылки"),
         ]
-
-    def __str__(self):
-        return f"{self.status}"
-
-    # def get_successful_attempts_count(self):
-    #     return self.attempt.filter(status='successfully').count()
-    #
-    # def get_unsuccessful_attempts_count(self):
-    #     return self.attempts.filter(status='not_unsuccessful').count()
-    #
-    # def total_attempts_count(self):
-    #     return self.attempts.count()
 
     def __str__(self):
         return f'Рассылка: {self.message} | Статус: {self.get_status_display()}'
@@ -114,9 +104,6 @@ class SendAttempt(models.Model):
         verbose_name = ('Попытка рассылки')
         verbose_name_plural = ('Попытки рассылки')
         ordering = ['-date_time']
-
-    # def __str__(self):
-    #     return f"Попытка рассылки: {self.attempt_time} - {self.status}"
 
     def __str__(self):
         return f"{self.mailing} - {self.recipient.email} - {self.date_time} - {self.status}"

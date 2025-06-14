@@ -1,0 +1,14 @@
+{% extends "messenger/base.html" %}
+
+{% block title %}Выход{% endblock %}
+
+{% block content %}
+  <div class="text-center mt-5">
+    <h1>Вы вышли из системы</h1>
+    <p class="lead">Вы успешно вышли из своей учетной записи.</p>
+    <div class="mt-4">
+      <a href="{% url 'messenger:home' %}" class="btn btn-outline-primary me-2">На главную</a>
+      <a href="{% url 'users:login' %}" class="btn btn-primary">Войти снова</a>
+    </div>
+  </div>
+{% endblock %}

@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.views.generic import DetailView
-
+from django.shortcuts import get_object_or_404, redirect, render
 from .models import Recipient, Message, Mailing, SendAttempt
 from .forms import RecipientForm, MessageForm, MailingForm
 from django.contrib.auth import get_user
@@ -15,7 +15,7 @@ from django.views.decorators.cache import cache_page
 
 
 def is_manager(user):
-    return user.groups.filter(name='Managers').exists()
+    return user.groups.filter(name='Менеджеры').exists()
 
 
 class RecipientListView(LoginRequiredMixin, generic.ListView):
@@ -58,7 +58,7 @@ class RecipientUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Recipient
     form_class = RecipientForm
     template_name = 'messenger/recipient_update.html'
-    # template_name = 'clients/client_update.html'
+
     success_url = reverse_lazy('messenger:list_recipient')
     context_object_name = 'recipient'
 
@@ -102,10 +102,9 @@ class MessageListView(LoginRequiredMixin, generic.ListView):
         else:
             return Message.objects.filter(owner=self.request.user)
 
-    @method_decorator(cache_page(60 * 5, key_prefix="messages:list"))
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
+    # @method_decorator(cache_page(60 * 5, key_prefix="messages:list"))
+    # def dispatch(self, *args, **kwargs):
+    #     return super().dispatch(*args, **kwargs)
 
 
 class MessageCreateView(LoginRequiredMixin, generic.CreateView):
@@ -156,9 +155,9 @@ class MailingListView(generic.ListView):
     template_name = 'messenger/list_mailing.html'
     context_object_name = 'mailings'
 
-    @method_decorator(cache_page(60 * 5))
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    # @method_decorator(cache_page(60 * 5))
+    # def dispatch(self, *args, **kwargs):
+    #     return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
         if is_manager(self.request.user):
@@ -240,6 +239,7 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
 
 
 class MailingDeactivateView(LoginRequiredMixin, View):
+    context_object_name = 'messages'
     def get(self, request, pk):
         if not is_manager(request.user):
             raise PermissionDenied("Только менеджеры могут деактивировать рассылки.")

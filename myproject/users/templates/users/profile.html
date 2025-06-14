@@ -1,0 +1,31 @@
+{% extends "messenger/base.html" %}
+
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Мой профиль</h3>
+                </div>
+                <div class="card-body">
+                    {% if object.avatar %}
+                        <img src="{{ object.avatar.url }}" class="img-thumbnail mb-3" width="150">
+                    {% endif %}
+                    <p><strong>Имя:</strong> {{ object.first_name|default:"Не указано" }}</p>
+                    <p><strong>Фамилия:</strong> {{ object.last_name|default:"Не указана" }}</p>
+                    <p><strong>Email:</strong> {{ object.email }}</p>
+                    <p><strong>Телефон:</strong> {{ object.phone|default:"Не указан" }}</p>
+                    <p><strong>Страна:</strong> {{ object.country.name|default:"Не указана" }}</p>
+
+                    <a href="{% url 'users:profile_edit' %}" class="btn btn-primary mt-3">
+                        Редактировать профиль
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

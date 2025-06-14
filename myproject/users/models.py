@@ -3,6 +3,7 @@ from django.core.validators import RegexValidator
 
 from django.contrib.auth.models import BaseUserManager
 from django.db import models
+import secrets
 
 
 class CustomUserManager(BaseUserManager):
@@ -42,11 +43,19 @@ class User(AbstractUser):
         help_text="Введите номер телефона"
     )
     country = models.CharField(max_length=100, blank=True, null=True)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
+    verification_token = models.CharField(max_length=100, blank=True)
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
+    def generate_verification_token(self):
+        "Генерация и сохранение токена верификации"
+        self.verification_token = secrets.token_urlsafe(32)
+        self.save()
+        return self.verification_token
 
     class Meta:
         verbose_name = "Пользователь"
