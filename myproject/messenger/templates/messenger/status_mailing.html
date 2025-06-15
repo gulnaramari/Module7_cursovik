@@ -17,7 +17,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for attempt in mailing.send_attempts.all %}
+        {% for attempt in mailing.send_attempt.all %}
         <tr>
             <td>{{ attempt.attempt_time|date:"D d M Y H:i:s" }}</td>
             <td>{{ attempt.status }}</td>

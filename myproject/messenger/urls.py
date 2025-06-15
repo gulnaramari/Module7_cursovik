@@ -1,12 +1,11 @@
 from django.urls import path
 
 from .apps import MessengerConfig
-from .views import (
-    HomeView, RecipientListView, RecipientCreateView, RecipientUpdateView,
-    RecipientDeleteView, MessageListView, MessageCreateView, MessageUpdateView,
-    MessageDeleteView, MailingListView, MailingCreateView, MailingUpdateView,
-    MailingDeleteView, SendMailingView, MailingDetailView, MailingDeactivateView, MessageDetailView
-)
+from . import views
+from .views import HomeView, RecipientListView, RecipientCreateView, RecipientUpdateView, RecipientDeleteView, \
+    MessageListView, MessageCreateView, MessageUpdateView, MessageDeleteView, MessageDetailView, MailingListView, \
+    MailingCreateView, MailingUpdateView, MailingDeleteView, MailingDetailView, MailingDeactivateView, \
+    MailingStatistView
 
 app_name = MessengerConfig.name
 
@@ -27,5 +26,8 @@ urlpatterns = [
     path('mailings/delete/<int:pk>/', MailingDeleteView.as_view(), name='mailing_delete'),
     path('mailings/<int:pk>/', MailingDetailView.as_view(), name='mailing_detail'),
     path('mailings/<int:pk>/deactivate/', MailingDeactivateView.as_view(), name='mailing_deactivate'),
-    path('send-mailing/<int:mailing_id>/', SendMailingView.as_view(), name='send_mailing'),
+    path("send_mailing/", views.send_mailing, name="send_mailing"),
+    path("mailing_reports/", views.mailing_reports, name="mailing_reports"),
+    path("stats/", MailingStatistView.as_view(), name="mailing_statist")
+
     ]

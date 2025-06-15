@@ -76,8 +76,17 @@ class Mailing(models.Model):
             ("can_disable_mailings", "Может отключать рассылки"),
         ]
 
+    def get_successful_attempts_count(self):
+        return self.messenger.filter(status="Done").count()
+
+    def get_unsuccessful_attempts_count(self):
+        return self.sendattempt.filter(status="Failed").count()
+
+    def total_attempts_count(self):
+        return self.sendattempt.count()
+
     def __str__(self):
-        return f'Рассылка: {self.message} | Статус: {self.get_status_display()}'
+        return f"Рассылка: {self.message} | Статус: {self.get_status_display()}"
 
 
 class SendAttempt(models.Model):
@@ -120,3 +129,4 @@ class SendAttempt(models.Model):
             "failed": total - success,
             "success_rate": (success / total * 100) if total > 0 else 0,
         }
+

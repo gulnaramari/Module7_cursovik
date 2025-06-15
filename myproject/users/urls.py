@@ -33,6 +33,7 @@ urlpatterns = [
     path("block/<int:pk>/", UserBlockView.as_view(), name="block_user"),
     path("unblock/<int:pk>/", UserUnlockView.as_view(), name="unblock_user"),
     path("users/", UserListView.as_view(), name="user_list"),
+
 ]
 
 

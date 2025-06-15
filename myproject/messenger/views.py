@@ -1,21 +1,21 @@
+from pyexpat.errors import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views import generic, View
 from django.urls import reverse_lazy
 from django.core.mail import send_mail
 from django.utils import timezone
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Recipient, Message, Mailing, SendAttempt
 from .forms import RecipientForm, MessageForm, MailingForm
 from django.contrib.auth import get_user
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-
-
-def is_manager(user):
-    return user.groups.filter(name='Менеджеры').exists()
+from .service import get_mailing_statistics, send_mailing, is_manager
 
 
 class RecipientListView(LoginRequiredMixin, generic.ListView):
@@ -150,6 +150,25 @@ class MessageDetailView(DetailView):
     context_object_name = 'message'
 
 
+@login_required
+def send_mailing(request):
+    if request.method == "POST":
+        form = MailingForm(request.POST)
+        if form.is_valid():
+            try:
+                mailing = form.cleaned_data["mailing"]
+                successful = send_mailing(mailing.pk)
+                messages.success(
+                    request, f"Рассылка отправлена. Успешных отправок: {successful}"
+                )
+            except ValidationError as e:
+                messages.error(request, str(e))
+            return redirect("mailing_reports")
+    else:
+        form = MailingForm()
+    return render(request, "messenger/send_mailing.html", {"form": form})
+
+
 class MailingListView(generic.ListView):
     model = Mailing
     template_name = 'messenger/list_mailing.html'
@@ -257,42 +276,36 @@ class MailingDeactivateView(LoginRequiredMixin, View):
         messages.success(request, f"Рассылка '{mailing.name}' успешно деактивирована")
         return redirect('messenger:list_mailing')
 
+@login_required
+def mailing_reports(request):
+    user = request.user
+    mailing_logs = SendAttempt.objects.filter(mailing__owner=user).order_by("-date_time")
+    context = {"mailing_logs": mailing_logs, "has_logs": mailing_logs.exists()}
+    return render(request, "messenger/mailing_reports.html", context)
 
-class SendMailingView(generic.View):
-    def post(self, request, mailing_id):
-        mailing = self.get_object(mailing_id)
-        recipients = mailing.recipients.all()
 
-        # Инициация отправки
-        for recipient in recipients:
-            try:
-                send_mail(
-                    mailing.message.subject,
-                    mailing.message.body,
-                    'from@example.com',  # email from
-                    [recipient.email],
-                    fail_silently=False,
-                )
-                status = 'Done'
-                server_response = 'Письмо отправлено успешно.'
-            except Exception as e:
-                status = 'Failed'
-                server_response = str(e)
+class MailingStatistView(LoginRequiredMixin, TemplateView):
+    template_name = "messenger/mailing_statist.html"
 
-            # Сохранение попытки рассылки
-            SendAttempt.objects.create(
-                mailing=mailing,
-                status=status,
-                server_response=server_response
-            )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
 
-        # Обновление статуса рассылки
-        if mailing.status == 'Создана':
-            mailing.status = 'Запущена'
-            mailing.first_sent_at = timezone.now()
-            mailing.save()
+        # Общая статистика пользователя
+        user_stats = SendAttempt.get_user_stats(user)
 
-        return render(request, 'status_mailing.html', {'mailing': mailing})
+        # Статистика по каждой рассылке
+        mailings = Mailing.objects.filter(owner=user)
+        mailing_statist = []
+        for mailing in mailings:
+            stats = SendAttempt.get_mailing_stats(mailing)
+            mailing_statist.append({
+                "mailing": mailing,
+                **stats
+            })
 
-    def get_object(self, mailing_id):
-        return Mailing.objects.get(id=mailing_id)
+        context.update({
+            "user_stats": user_stats,
+            "mailing_stats": mailing_statist,
+        })
+        return context

@@ -11,13 +11,13 @@
                     <h5 class="card-title">Статистика рассылок</h5>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <strong>Количество всех рассылок:</strong> {{ mailings|length }}
+                            <strong>Количество всех рассылок:</strong> {{ all_mailings|length }}
                         </li>
                         <li class="list-group-item">
                             <strong>Количество активных рассылок:</strong> {{ active_mailings }}
                         </li>
                         <li class="list-group-item">
-                            <strong>Количество уникальных клиентов:</strong> {{ recipients }}
+                            <strong>Количество уникальных клиентов:</strong> {{ unique_recipients }}
                         </li>
                     </ul>
                 </div>
