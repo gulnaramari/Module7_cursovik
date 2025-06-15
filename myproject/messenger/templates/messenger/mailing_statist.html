@@ -1,0 +1,36 @@
+{% extends "messenger/base.html" %}
+
+{% block content %}
+<h1>Подробная статистика рассылок</h1>
+
+<div class="card">
+    <h2>Общие показатели</h2>
+    <p>Всего попыток: <strong>{{ user_stats.total }}</strong></p>
+    <p>Успешных: <strong>{{ user_stats.success }}</strong></p>
+    <p>Неудачных: <strong>{{ user_stats.failed }}</strong></p>
+    <p>Процент успеха: <strong>{{ user_stats.success_rate|floatformat:2 }}%</strong></p>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Рассылка</th>
+            <th>Всего</th>
+            <th>Успешно</th>
+            <th>Неудачно</th>
+            <th>Успех (%)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stat in mailing_statist %}
+        <tr>
+            <td>{{ stat.mailing }}</td>
+            <td>{{ stat.total }}</td>
+            <td>{{ stat.success }}</td>
+            <td>{{ stat.failed }}</td>
+            <td>{{ stat.success_rate|floatformat:2 }}%</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

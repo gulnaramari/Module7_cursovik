@@ -13,7 +13,7 @@ class Recipient(models.Model):
                               verbose_name='Владелец',
                               help_text="Укажите владельца",
                               null=True,
-                              blank=True,)
+                              blank=True, )
 
     class Meta:
         verbose_name = "получатель"
@@ -51,7 +51,7 @@ class Mailing(models.Model):
         ('Created', 'Создана'),
         ('Started', 'Запущена'),
         ('Finished', 'Завершена')
-        ]
+    ]
     first_at = models.DateTimeField(null=True, blank=True)
     end_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Создана')
@@ -84,7 +84,7 @@ class SendAttempt(models.Model):
     STATUS_CHOICES = [
         ('Done', 'Успешно'),
         ('Failed', 'Не успешно')
-        ]
+    ]
 
     attempt_time = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES,
@@ -101,9 +101,22 @@ class SendAttempt(models.Model):
     server_response = models.TextField(verbose_name='Ответ почтового сервера', blank=True, null=True)
 
     class Meta:
-        verbose_name = ('Попытка рассылки')
-        verbose_name_plural = ('Попытки рассылки')
+        verbose_name = 'Попытка рассылки'
+        verbose_name_plural = 'Попытки рассылки'
         ordering = ['-date_time']
 
     def __str__(self):
         return f"{self.mailing} - {self.recipient.email} - {self.date_time} - {self.status}"
+
+    @classmethod
+    def get_user_stats(cls, user):
+        """Общая статистика по пользователю"""
+        logs = cls.objects.filter(mailing__owner=user)
+        total = logs.count()
+        success = logs.filter(status="Done").count()
+        return {
+            "total": total,
+            "success": success,
+            "failed": total - success,
+            "success_rate": (success / total * 100) if total > 0 else 0,
+        }

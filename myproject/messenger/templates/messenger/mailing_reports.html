@@ -1,0 +1,36 @@
+{% extends "messenger/base.html" %}
+
+{% block content %}
+<h1>Рассылки</h1>
+
+{% if has_logs %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Рассылка</th>
+            <th>Клиент</th>
+            <th>Дата</th>
+            <th>Статус</th>
+            <th>Ответ сервера</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in mailing_logs %}
+        <tr>
+            <td>{{ log.mailing }}</td>
+            <td>{{ log.recipient }}</td>
+            <td>{{ log.date_time }}</td>
+            <td>{{ log.get_status_display }}</td>
+            <td>{{ log.server_response|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Нет данных о рассылках.</p>
+{% endif %}
+
+<a href="{% url 'messenger:mailing_statist' %}" class="btn">
+    Статистика
+</a>
+{% endblock %}
