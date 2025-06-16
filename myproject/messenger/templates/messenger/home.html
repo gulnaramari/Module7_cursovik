@@ -29,9 +29,9 @@
                 <div class="card-body">
                     <h5 class="card-title">Список рассылок</h5>
                     <ul class="list-group list-group-flush">
-                        {% for mailing in mailings %}
+                        {% for mailing in object_list %}
                             <li class="list-group-item">
-                                <a href="{% url 'messenger:mailing_detail' mailing.pk %}">{{ mailing.name }}</a>
+                                <a href="{% url 'messenger:mailing_detail' mailing.pk %}">{{ object.name }}</a>
                             </li>
                         {% empty %}
                             <li class="list-group-item">Нет рассылок.</li>

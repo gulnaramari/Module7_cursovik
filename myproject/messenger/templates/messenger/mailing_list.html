@@ -4,7 +4,7 @@
 
 {% block content %}
 <h2>Список рассылок</h2>
-<a href="{% url 'messenger:mailing_create' %}" class="btn btn-success">Добавить рассылку</a>
+<a href="{% url 'messenger:mailing_form' %}" class="btn btn-success">Добавить рассылку</a>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -20,7 +20,7 @@
             <td>{{ mailing.status }}</td>
             <td>
                 <a href="{% url 'messenger:mailing_update' mailing.pk %}" class="btn btn-warning">Редактировать</a>
-                <a href="{% url 'messenger:send_mailing' mailing.pk %}" class="btn btn-info">Отправить</a>
+                <a href="{% url 'messenger:send_mailing' %}" class="btn btn-info">Отправить</a>
                 <a href="{% url 'messenger:mailing_delete' mailing.pk %}" class="btn btn-danger">Удалить</a>
             </td>
         </tr>

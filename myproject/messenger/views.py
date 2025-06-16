@@ -20,7 +20,7 @@ from .service import get_mailing_statistics, send_mailing, is_manager
 
 class RecipientListView(LoginRequiredMixin, generic.ListView):
     model = Recipient
-    template_name = 'messenger/list_recipient.html'
+    template_name = 'messenger/recipient_list.html'
     context_object_name = 'recipients'
 
     def get_queryset(self):
@@ -44,8 +44,8 @@ class RecipientCreateView(LoginRequiredMixin, generic.CreateView):
     model = Recipient
     form_class = RecipientForm
     template_name = 'messenger/recipient_form.html'
-    success_url = reverse_lazy('messenger:list_recipient')
-
+    success_url = reverse_lazy('messenger:recipient_list')
+    context_object_name = 'recipient'
     def form_valid(self, form):
         """Присваиваем авторизованного пользователя создаваемому получателю"""
         user = get_user(self.request)
@@ -59,7 +59,7 @@ class RecipientUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = RecipientForm
     template_name = 'messenger/recipient_update.html'
 
-    success_url = reverse_lazy('messenger:list_recipient')
+    success_url = reverse_lazy('messenger:recipient_list')
     context_object_name = 'recipient'
 
     def get_object(self, queryset=None):
@@ -80,8 +80,8 @@ class RecipientUpdateView(LoginRequiredMixin, generic.UpdateView):
 class RecipientDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Recipient
     template_name = 'messenger/recipient_confirm_delete.html'
-    success_url = reverse_lazy('messenger:list_recipient')
-
+    success_url = reverse_lazy('messenger:recipient_list')
+    context_object_name = 'recipient'
     def get_object(self, queryset=None):
         recipient = get_object_or_404(Recipient, pk=self.kwargs.get('pk'))
         if not is_manager(self.request.user) and recipient.owner != self.request.user:
@@ -146,7 +146,7 @@ class MessageDeleteView(generic.DeleteView):
 
 class MessageDetailView(DetailView):
     model = Message
-    template_name = 'mail_messages/message_detail.html'
+    template_name = 'messenger/message_detail.html'
     context_object_name = 'message'
 
 
@@ -171,7 +171,7 @@ def send_mailing(request):
 
 class MailingListView(generic.ListView):
     model = Mailing
-    template_name = 'messenger/list_mailing.html'
+    template_name = 'messenger/mailing_list.html'
     context_object_name = 'mailings'
 
     # @method_decorator(cache_page(60 * 5))
@@ -192,7 +192,9 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
     model = Mailing
     form_class = MailingForm
     template_name = 'messenger/mailing_form.html'
-    success_url = reverse_lazy('messenger:list_mailing')
+    success_url = reverse_lazy('messenger:mailing_list')
+    context_object_name = 'mailing'
+
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
@@ -202,7 +204,8 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Mailing
     form_class = MailingForm
     template_name = 'messenger/mailing_form.html'
-    success_url = reverse_lazy('messenger:list_mailing')
+    success_url = reverse_lazy('messenger:mailing_list')
+    context_object_name = 'mailing'
 
     def get_object(self, queryset=None):
         mailing = get_object_or_404(Mailing, pk=self.kwargs['pk'])
@@ -214,7 +217,8 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
 class MailingDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Mailing
     template_name = 'messenger/mailing_confirm_delete.html'
-    success_url = reverse_lazy('messenger:list_mailing')
+    success_url = reverse_lazy('messenger:mailing_list')
+    context_object_name = 'mailing'
 
     def get_object(self, queryset=None):
         mailing = get_object_or_404(Mailing, pk=self.kwargs['pk'])
@@ -225,7 +229,6 @@ class MailingDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 class HomeView(generic.TemplateView):
     template_name = 'messenger/home.html'
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
@@ -274,7 +277,7 @@ class MailingDeactivateView(LoginRequiredMixin, View):
         mailing.is_active = False
         mailing.save()
         messages.success(request, f"Рассылка '{mailing.name}' успешно деактивирована")
-        return redirect('messenger:list_mailing')
+        return redirect('messenger:mailing_list')
 
 @login_required
 def mailing_reports(request):

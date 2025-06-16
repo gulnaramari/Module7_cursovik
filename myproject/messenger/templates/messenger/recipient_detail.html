@@ -1,4 +1,4 @@
-{% extends 'clients/base.html' %}
+{% extends 'messenger/base.html' %}
 
 {% block title %}
     Детальная информация о получателе
@@ -6,13 +6,14 @@
 
 {% block content %}
     <div class="container my-5">
-        <h2 class="text-center my-3">ФИО: {{object.full_name }}</h2>
-        <p class="text-center">Электронная почта: {{object.email}}</p>
-        <p class="text-center">Комментарий: {{object.comment}}</p>
+        <h2 class="text-center my-3">ФИО: {{recipient.full_name }}</h2>
+        <p class="text-center">Электронная почта: {{recipient.email}}</p>
+        <p class="text-center">Комментарий: {{recipient.comment}}</p>
+
         <div class="text-center">
-            <a href="{% url 'messenger:recipient_update' client.pk %}" class="btn btn-lg btn-block btn-outline-primary mt-3">Редактировать</a>
-            <a href="{% url 'messenger:recipient_delete' client.pk %}" class="btn btn-lg btn-block btn-outline-primary mt-3">Удалить</a>
-            <a href="{% url 'messenger:list_recipient' %}" class="btn btn-lg btn-primary mt-3">Назад</a>
+            <a href="{% url 'messenger:recipient_update' recipient.pk %}" class="btn btn-lg btn-block btn-outline-primary mt-3">Редактировать</a>
+            <a href="{% url 'messenger:recipient_delete' recipient.pk %}" class="btn btn-lg btn-block btn-outline-primary mt-3">Удалить</a>
+            <a href="{% url 'messenger:recipient_list' %}" class="btn btn-lg btn-primary mt-3">Назад</a>
         </div>
     </div>
 {% endblock %}

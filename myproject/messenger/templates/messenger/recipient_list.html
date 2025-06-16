@@ -4,7 +4,7 @@
 
 {% block content %}
 <h2>Список получателей</h2>
-<a href="{% url 'messenger:recipient_create' %}" class="btn btn-success">Добавить получателя</a>
+<a href="{% url 'messenger:recipient_form' %}" class="btn btn-success">Добавить получателя</a>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -14,7 +14,7 @@
         </tr>
     </thead>
     <body>
-        {% for recipient in recipients %}
+        {% for recipient in object_list %}
         <tr>
             <td>{{ recipient.email }}</td>
             <td>{{ recipient.full_name }}</td>

@@ -10,7 +10,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('users/verify/<str:token>/', VerifyEmailView.as_view(), name='verify_email'),
-    path('password_reset/', auth_views.PasswordResetView.as_view(
+    path('password_recovery/', auth_views.PasswordResetView.as_view(
              form_class=CustomPasswordResetForm,
              template_name='users/password_recovery.html',
              success_url=reverse_lazy('users:password_reset_form'),
@@ -20,7 +20,7 @@ urlpatterns = [
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(
              template_name='users/password_reset_form.html'
          ),
-         name='password_reset_done'),
+         name='password_reset_form'),
     path('reset/<uidb64>/<token>/',
          CustomPasswordResetConfirmView.as_view(
              template_name='users/password_reset_confirm.html',

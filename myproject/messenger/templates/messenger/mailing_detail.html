@@ -8,13 +8,13 @@
 <p><strong>Дата и время окончания отправки:</strong> {{ mailing.end_date_time }}</p>
 <p><strong>Получатели:</strong></p>
 <ul>
-    {% for recipient in messenger.recipients.all %}
+    {% for recipient in mailing.recipients.all %}
         <li>{{ recipient.full_name }} ({{ recipient.email }})</li>
     {% empty %}
-        <li>Нет получателей</li>
+        <li>Нет клиентов.</li>
     {% endfor %}
 </ul>
 <a href="{% url 'messenger:mailing_update' mailing.pk %}">Редактировать</a>
-<a href="{% url 'messenger:mailing_confirm_delete' mailing.pk %}">Удалить</a>
-<a href="{% url 'messenger:list_mailing' %}">Назад к списку рассылок</a>
+<a href="{% url 'messenger:mailing_delete' mailing.pk %}">Удалить</a>
+<a href="{% url 'messenger:mailing_list' %}">Назад к списку рассылок</a>
 {% endblock %}
