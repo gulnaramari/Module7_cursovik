@@ -6,9 +6,6 @@ from django.utils import timezone
 from .models import Recipient, Mailing, SendAttempt
 
 
-def is_manager(user):
-    return user.groups.filter(name='Менеджеры').exists()
-
 
 def validate_mailing_time(mailing):
     "Проверка времени у рассылки"
@@ -75,21 +72,3 @@ def send_single_email(mailing, recipient):
         mailing=mailing, client=recipient, status="Done", server_response="OK"
     )
 
-
-def get_mailing_statistics(user=None):
-    "Возвращает статистику рассылок для всех пользователей или для конкретного пользователя"
-
-    if user and not is_manager(user):
-        mailings = Mailing.objects.filter(owner=user)
-    else:
-        mailings = Mailing.objects.all()
-
-    all_mailings = mailings.count()
-    active_mailings_count = mailings.filter(is_active=True).count()
-    unique_clients = Recipient.objects.filter(mailings__in=mailings).distinct().count()
-
-    return {
-        "all_mailings": all_mailings,
-        "active_mailings": active_mailings_count,
-        "unique_clients": unique_clients,
-    }

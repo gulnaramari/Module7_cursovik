@@ -15,7 +15,8 @@ class Command(BaseCommand):
             ('messenger', 'recipient', 'can_view_recipient'),
             ('messenger', 'mailing', 'can_view_mailing'),
             ('users', 'user', 'block_user'),
-            ('messenger', 'message', 'can_view_message'),
+            ('users', 'user', 'can_view_user'),
+
         ]
 
         for app_label, model, codename in permissions:

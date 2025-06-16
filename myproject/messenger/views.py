@@ -15,7 +15,8 @@ from django.contrib.auth import get_user
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from .service import get_mailing_statistics, send_mailing, is_manager
+from .service import send_mailing
+from .utils import is_manager
 
 
 class RecipientListView(LoginRequiredMixin, generic.ListView):
@@ -35,7 +36,7 @@ class RecipientListView(LoginRequiredMixin, generic.ListView):
         context['recipients'] = self.get_queryset()
         return context
 
-    # @method_decorator(cache_page(60 * 5, key_prefix='client_list'))
+    # @method_decorator(cache_page(60 * 5, key_prefix='recipient_list'))
     # def dispatch(self, request, *args, **kwargs):
     #     return super().dispatch(request, *args, **kwargs)
 
@@ -116,6 +117,7 @@ class MessageCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         form.instance.owner = self.request.user
         self.object = form.save()
+        messages.success(self.request, "Сообщение создано.")
         return super().form_valid(form)
 
 
@@ -132,7 +134,7 @@ class MessageUpdateView(LoginRequiredMixin, generic.UpdateView):
         return message
 
 
-class MessageDeleteView(generic.DeleteView):
+class MessageDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Message
     template_name = 'messenger/message_confirm_delete.html'
     success_url = reverse_lazy('messenger:message_list')
@@ -140,11 +142,11 @@ class MessageDeleteView(generic.DeleteView):
     def get_object(self, queryset=None):
         message = get_object_or_404(Message, pk=self.kwargs['pk'])
         if message.owner != self.request.user:
-            raise PermissionDenied("Вы не можете удалять это сообщение.")
+            raise PermissionDenied("Вы не можете удалить это сообщение.")
         return message
 
 
-class MessageDetailView(DetailView):
+class MessageDetailView(LoginRequiredMixin, DetailView):
     model = Message
     template_name = 'messenger/message_detail.html'
     context_object_name = 'message'
@@ -169,7 +171,7 @@ def send_mailing(request):
     return render(request, "messenger/send_mailing.html", {"form": form})
 
 
-class MailingListView(generic.ListView):
+class MailingListView(LoginRequiredMixin, generic.ListView):
     model = Mailing
     template_name = 'messenger/mailing_list.html'
     context_object_name = 'mailings'
@@ -185,7 +187,7 @@ class MailingListView(generic.ListView):
             return Mailing.objects.filter(owner=self.request.user)
 
     def get_cache_key(self):
-        return f"list_mailing_{self.request.user.id}"
+        return f"mailing_list_{self.request.user.id}"
 
 
 class MailingCreateView(LoginRequiredMixin, generic.CreateView):
@@ -281,6 +283,7 @@ class MailingDeactivateView(LoginRequiredMixin, View):
 
 @login_required
 def mailing_reports(request):
+    '''Отчеты'''
     user = request.user
     mailing_logs = SendAttempt.objects.filter(mailing__owner=user).order_by("-date_time")
     context = {"mailing_logs": mailing_logs, "has_logs": mailing_logs.exists()}
@@ -301,7 +304,7 @@ class MailingStatistView(LoginRequiredMixin, TemplateView):
         mailings = Mailing.objects.filter(owner=user)
         mailing_statist = []
         for mailing in mailings:
-            stats = SendAttempt.get_mailing_stats(mailing)
+            stats = SendAttempt.get_mailing_statistics(mailing)
             mailing_statist.append({
                 "mailing": mailing,
                 **stats
@@ -309,6 +312,6 @@ class MailingStatistView(LoginRequiredMixin, TemplateView):
 
         context.update({
             "user_stats": user_stats,
-            "mailing_stats": mailing_statist,
+            "mailing_statist": mailing_statist,
         })
         return context

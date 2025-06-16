@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            padding-top: 56px; /* Отступ для фиксированной навигационной панели */
+            padding-top:78px; /* Отступ для фиксированной навигационной панели */
         }
     </style>
 </head>
@@ -39,8 +39,12 @@
                     <li class="nav-item">
                             <a class="nav-link" href="{% url 'messenger:message_list' %}">Список сообщений</a>
                         </li>
+
                     <li class="nav-item">
                             <a class="nav-link" href="{% url 'messenger:recipient_list' %}">Список получателей</a>
+                        </li>
+                    <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:user_list' %}">Список пользователей</a>
                         </li>
 
 

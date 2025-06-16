@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
 from django.core.mail import send_mail
@@ -162,7 +163,7 @@ class UserBlockView(LoginRequiredMixin, View):
         return redirect(reverse("messenger:home"))
 
 
-class UserUnlockView(LoginRequiredMixin, View):
+class UserUnblockView(LoginRequiredMixin, View):
     """Разблокировка пользователя менеджером"""
 
     def post(self, request, pk):
@@ -186,3 +187,24 @@ class UserListView(LoginRequiredMixin, ListView):
         if not is_manager(self.request.user):
             raise Http404("У вас нет прав для просмотра этой страницы.")
         return User.objects.all().order_by("-is_active", "email")
+
+
+@login_required
+def profile(request):
+    return render(request, "users/profile.html")
+
+@login_required
+def profile_edit(request):
+    if request.method == "POST":
+        form = UserProfileEditForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Профиль успешно обновлен.")
+            return redirect("users:profile")
+        else:
+            messages.error(
+                request, "Ошибка обновления профиля. Проверьте введенные данные."
+            )
+    else:
+        form = UserProfileEditForm(instance=request.user)
+    return render(request, "users/profile_edit.html", {"form": form})

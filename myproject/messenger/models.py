@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from users.models import User
+from .utils import is_manager
 
 
 class Recipient(models.Model):
@@ -28,8 +29,8 @@ class Recipient(models.Model):
 
 
 class Message(models.Model):
-    subject = models.CharField(max_length=255)
-    body = models.TextField()
+    subject = models.CharField(max_length=255, verbose_name="Тема письма", null=False, blank=False)
+    body = models.TextField(verbose_name="Текст письма", null=False, blank=False)
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -52,6 +53,7 @@ class Mailing(models.Model):
         ('Started', 'Запущена'),
         ('Finished', 'Завершена')
     ]
+    name = models.CharField(max_length=150, verbose_name="Название рассылки", null=True, blank=True)
     first_at = models.DateTimeField(null=True, blank=True)
     end_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Создана')
@@ -76,14 +78,6 @@ class Mailing(models.Model):
             ("can_disable_mailings", "Может отключать рассылки"),
         ]
 
-    def get_successful_attempts_count(self):
-        return self.messenger.filter(status="Done").count()
-
-    def get_unsuccessful_attempts_count(self):
-        return self.sendattempt.filter(status="Failed").count()
-
-    def total_attempts_count(self):
-        return self.sendattempt.count()
 
     def __str__(self):
         return f"Рассылка: {self.message} | Статус: {self.get_status_display()}"
@@ -101,9 +95,9 @@ class SendAttempt(models.Model):
                               db_index=True
                               )
     mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE,
-                                verbose_name='Рассылка', null=True, related_name='sendattempt')
+                                verbose_name='Рассылка', null=True, related_name='attempts')
     recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE,
-                                  verbose_name='Получатель', null=True, related_name='sendattempt')
+                                  verbose_name='Получатель', null=True, related_name='attempts')
     date_time = models.DateTimeField(default=timezone.now,
                                      verbose_name='Дата и время попытки', db_index=True,
                                      editable=False)
@@ -129,4 +123,23 @@ class SendAttempt(models.Model):
             "failed": total - success,
             "success_rate": (success / total * 100) if total > 0 else 0,
         }
+
+    def get_mailing_statistics(user=None):
+        "Возвращает статистику рассылок для всех пользователей или для конкретного пользователя"
+
+        if user and not is_manager(user):
+            mailings = Mailing.objects.filter(owner=user)
+        else:
+            mailings = Mailing.objects.all()
+
+        all_mailings = mailings.count()
+        active_mailings = mailings.filter(is_active=True).count()
+        unique_recipients = Recipient.objects.filter(mailings__in=mailings).distinct().count()
+
+        return {
+            "all_mailings": all_mailings,
+            "active_mailings": active_mailings,
+            "unique_clients": unique_recipients,
+        }
+
 
